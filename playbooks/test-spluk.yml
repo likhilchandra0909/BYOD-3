@@ -1,0 +1,7 @@
+- name: Test Splunk
+  hosts: splunk
+  become: yes
+
+  tasks:
+    - name: Check Splunk service
+      shell: ps -ef | grep splunkd | grep -v grep
