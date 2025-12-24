@@ -4,8 +4,6 @@ pipeline {
     environment {
         TF_IN_AUTOMATION = "true"
         TF_CLI_ARGS = "-no-color"
-        AWS_ACCESS_KEY_ID = credentials('aws-creds').username
-        AWS_SECRET_ACCESS_KEY = credentials('aws-creds').password
         SSH_CRED_ID = "ssh-key-dev"
     }
 
@@ -13,11 +11,18 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
+                withCredentials([usernamePassword(
+                credentialsId: 'aws-creds',
+                usernameVariable: 'AWS_ACCESS_KEY_ID',
+                passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                 sh '''
+                  terraform init
                   terraform apply -auto-approve -var-file=${BRANCH_NAME}.tfvars
-                '''
+            '''
             }
         }
+    }
+
 
         stage('Capture Terraform Outputs') {
             steps {
